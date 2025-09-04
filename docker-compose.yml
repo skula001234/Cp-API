@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  classplus-decoder:
+    build: .
+    container_name: classplus-decoder
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - classplus-network
+
+  # Optional: Add Redis for better rate limiting
+  redis:
+    image: redis:7-alpine
+    container_name: classplus-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - classplus-network
+
+networks:
+  classplus-network:
+    driver: bridge
+
+volumes:
+  redis_data:

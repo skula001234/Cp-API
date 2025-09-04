@@ -1,0 +1,35 @@
+[Unit]
+Description=ClassPlus Decoder Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=exec
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/workspace
+Environment=PATH=/workspace/venv/bin
+ExecStart=/workspace/venv/bin/gunicorn -c /workspace/gunicorn.conf.py main:app
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=classplus-decoder
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/workspace
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target
